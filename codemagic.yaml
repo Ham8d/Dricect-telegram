@@ -1,0 +1,30 @@
+workflows:
+  build-tweak:
+    name: Build iOS Theos Tweak
+    max_build_duration: 15
+    environment:
+      vars:
+        PACKAGE_NAME: TurathTelegramRedirect
+      xcode: latest
+    scripts:
+      - name: Install Dependencies (Theos & Toolchain)
+        script: |
+          # تثبيت الحزم الأساسية وادوات التجميع
+          brew install ldid dpkg
+          
+          # تثبيت Theos في مجلد المستخدم
+          export THEOS=~/theos
+          git clone --recursive https://github.com/theos/theos.git $THEOS
+          
+          # تحميل أدوات الـ iOS SDKs اللازمة للتجميع
+          git clone https://github.com/theos/sdks.git $THEOS/sdks
+      - name: Build Tweak (.dylib & .deb)
+        script: |
+          export THEOS=~/theos
+          export PATH=$THEOS/bin:$PATH
+          
+          # الانتقال لمسار المشروع والتجميع
+          cd $CM_BUILD_DIR
+          make package
+    artifacts:
+      - packages/*.deb
